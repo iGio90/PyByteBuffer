@@ -1,2 +1,5 @@
 .idea
 py-bytebuffer.iml
+build*
+dist
+PyByteBuffer.egg-info
