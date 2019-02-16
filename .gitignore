@@ -1,7 +1,2 @@
 .idea
 py-bytebuffer.iml
-build*
-dist
-PyByteBuffer.egg-info
-__pycache__
-PyByteBuffer/__pycache__
