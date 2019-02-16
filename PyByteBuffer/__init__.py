@@ -1,5 +1,6 @@
 """
-    PyByteBuffer
+    PyByteBuffer - A bytes manipulation library inspired by Java ByteBuffer
+
     Copyright (C) 2019  Giovanni Rocca (iGio90)
 
     This program is free software: you can redistribute it and/or modify
@@ -15,21 +16,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-import math
 import binascii
+
+from PyByteBuffer import utils
 
 
 class ByteBuffer(object):
+    """
+    Object class wrapping a byte array and allowing manipulation
+    """
     def __init__(self):
-        self.data = None
+        self.buffer = None
+        """ the data buffer """
         self.position = 0
+        """ current position """
         self.remaining = 0
+        """ remaining bytes """
 
     @staticmethod
     def allocate(n):
         """
-        :param n: size of allocation
-        :return: a ByteBuffer object wrapping an empty buffer of size n
+        return a `ByteBuffer` object wrapping an empty buffer of size `n`
         """
         d = bytearray([00] * n)
         b = ByteBuffer()
@@ -39,8 +46,7 @@ class ByteBuffer(object):
     @staticmethod
     def from_hex(hex_str):
         """
-        :param hex_str: an hexadecimal string
-        :return: a ByteBuffer object wrapping a buffer decoded from hex_str
+        return a `ByteBuffer` object wrapping a buffer decoded from `hex_str`
         """
         b = ByteBuffer()
         b.__init(binascii.unhexlify(hex_str))
@@ -49,8 +55,7 @@ class ByteBuffer(object):
     @staticmethod
     def wrap(data):
         """
-        :param data: a bytes/bytearray object
-        :return: a ByteBuffer object wrapping a the data provided
+        return a `ByteBuffer` object wrapping `data`
         """
         b = ByteBuffer()
         b.__init(data)
@@ -58,128 +63,106 @@ class ByteBuffer(object):
 
     def __init(self, data):
         """
-        Initialize this buffer with the given data
-        :param data:
-        :return:
+        Initialize this buffer with `data`
         """
         if type(data) is not bytearray:
             data = bytearray(data)
 
-        self.data = data
+        self.buffer = data
         self.position = 0
         self.remaining = len(data)
 
-    def _check_buffer(self, for_len):
+    def _check_buffer(self, space):
         """
-        :param for_len: the length to check
-        :return: whether if this buffer has enough space left for r/w op
+        check whether this buffer has enough `space` left for r/w op
         """
-        return not self.remaining < for_len
-
-    def _int_size(self, i):
-        """
-        :param i: an int object
-        :return: the number of bytes of the given int
-        """
-        if i == 0:
-            return 1
-        return int(math.log(i, 256)) + 1
+        return not self.remaining < space
 
     def _read(self, length=1):
         """
-        for internal usage, read length byte from the source and update position
-        :param length: the number of bytes to read
-        :return: a bytearray object of the required size starting from current position
+        for internal usage, read `length` byte from `buffer` and update position
         """
         assert self._check_buffer(length), 'Buffer has not enough bytes to read'
-        r = self.data[self.position:self.position + length]
+        r = self.buffer[self.position:self.position + length]
         self._update_offsets(length)
         return r
 
     def _update_offsets(self, value):
         """
-        update the position of this buffer
-        :param value: the number of bytes for the increment
-        :return:
+        update `position` and `remaining` with the given `value`
         """
         self.position += value
         self.remaining -= value
 
     def array(self, length=0):
         """
-        get a bytearray object and increment position
-        :param length: the number of bytes required or 0/not provided for the remaining bytes
-        :return: a bytearray object of the required length
+        return a `bytearray` object of the required `length` and increment `position`
         """
         if length != 0 and length > self.remaining:
             length = self.remaining
-        r = self.data[self.position:self.position + length]
+        r = self.buffer[self.position:self.position + length]
         self._update_offsets(len(r))
         return r
 
     def get(self, length=1, endianness='big'):
         """
-        get an int object and increment position
-        :param length: an optional bytes length. default: 1
-        :param endianness: the byte order. default: big
-        :return: the int representation of requested bytes
+        return the `int` representation of bytes starting at `position` for the given `length` and `endianness`.
+        increment `position` after read.
+        default `length` is 1 and big `endianness`
         """
         return int.from_bytes(self._read(length=length), byteorder=endianness)
 
     def put(self, b, endianness='big'):
         """
-        write data in the buffer and increment position
-        :param b: the data to write. could be a string, an int, an array, a bytes/bytearray object, a list etc
-        :param endianness: the byte order. default: big
-        :return:
+        write `b` in the buffer and increment `position`
+        the data to write could be a string, an int, an array, a bytes/bytearray object, a list etc.
+        optionally, you can specify an `endianness` if b is of type int.
         """
-        b = type(b)
-        if b == str:
+        t = type(b)
+        if t == str:
             b = b.encode('utf8')
-        elif b == int:
-            b = int.to_bytes(b, self._int_size(b), byteorder=endianness)
-        elif b == list:
+        elif t == int:
+            b = int.to_bytes(b, utils.int_size(b), byteorder=endianness)
+        elif t == list:
             b = bytes(b)
-        elif b == bytes or b == bytearray:
+        elif t == bytes or t == bytearray:
             pass
         else:
             raise Exception('Attempting to write unknown object into Buffer')
         l = len(b)
         assert self._check_buffer(l), 'Buffer has not enough space left'
         for i in range(l):
-            self.data[l:l + 1] = b[i:i + 1]
+            self.buffer[l:l + 1] = b[i:i + 1]
 
     def rewind(self):
         """
-        set position to 0
-        :return:
+        set `position` to 0
         """
         self.position = 0
-        self.remaining = len(self.data)
+        self.remaining = len(self.buffer)
 
     def slice(self):
         """
-        slice the buffer at the current position
+        slice `buffer` at current position.
 
         note:
-            original buffer remain untouched
-            position is not incremented
-        :return: a ByteBuffer object wrapping data starting from the current position
+            original `buffer` remain untouched.
+            `position` is not incremented.
         """
         b = ByteBuffer()
-        b.__init(self.data[self.position:])
+        b.__init(self.buffer[self.position:])
 
 
 __all__ = [
     "__title__", "__summary__", "__uri__", "__version__", "__author__",
-    "__email__", "__license__", "__copyright__",
+    "__email__", "__license__", "__copyright__", "ByteBuffer",
 ]
 
 __title__ = "PyByteBuffer"
 __summary__ = "A bytes manipulation library inspired by Java ByteBuffer"
 __uri__ = "https://github.com/iGio90/PyByteBuffer"
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 __author__ = "iGio90"
 __email__ = "giovanni.rocca.90@gmail.com"

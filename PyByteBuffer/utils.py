@@ -1,5 +1,6 @@
 """
-    PyByteBuffer
+    Utils used by PyByteBuffer
+
     Copyright (C) 2019  Giovanni Rocca (iGio90)
 
     This program is free software: you can redistribute it and/or modify
@@ -15,9 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import math
 
-from PyByteBuffer import ByteBuffer
 
-b = ByteBuffer.allocate(10000)
-
-b.put(100000)
+def int_size(i):
+    """
+    return the number of bytes occupied by `i`
+    """
+    if i == 0:
+        return 1
+    return int(math.log(i, 256)) + 1
