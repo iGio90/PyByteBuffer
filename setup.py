@@ -26,7 +26,7 @@ setup(
     name=PyByteBuffer.__title__,
     version=PyByteBuffer.__version__,
 
-    description='',
+    description=PyByteBuffer.__summary__,
     long_description=readme,
     url=PyByteBuffer.__uri__,
     license=PyByteBuffer.__license__,

@@ -80,7 +80,9 @@ class ByteBuffer(object):
         self.remaining -= value
 
     def array(self):
-        pass
+        r = self.data[self.position:]
+        self._update_offsets(len(r))
+        print(self.remaining)
 
     def get(self, length=1, endianness='big'):
         return int.from_bytes(self._read(length=length), byteorder=endianness)
@@ -107,7 +109,8 @@ class ByteBuffer(object):
         self.remaining = len(self.data)
 
     def slice(self):
-        pass
+        b = ByteBuffer()
+        b.__init(self.data[self.position:])
 
 
 __all__ = [
