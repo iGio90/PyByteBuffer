@@ -79,10 +79,12 @@ class ByteBuffer(object):
         self.position += value
         self.remaining -= value
 
-    def array(self):
-        r = self.data[self.position:]
+    def array(self, length=0):
+        if length != 0 and length > self.remaining:
+            length = self.remaining
+        r = self.data[self.position:self.position + length]
         self._update_offsets(len(r))
-        print(self.remaining)
+        return r
 
     def get(self, length=1, endianness='big'):
         return int.from_bytes(self._read(length=length), byteorder=endianness)
@@ -122,7 +124,7 @@ __title__ = "PyByteBuffer"
 __summary__ = "A bytes manipulation library inspired by Java ByteBuffer"
 __uri__ = "https://github.com/iGio90/PyByteBuffer"
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 __author__ = "iGio90"
 __email__ = "giovanni.rocca.90@gmail.com"
