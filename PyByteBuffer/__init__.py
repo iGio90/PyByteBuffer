@@ -148,10 +148,10 @@ class ByteBuffer(object):
 
     def slice(self):
         """
-        slice `buffer` at current position.
+        slice the `buffer` at current position. return a `ByteBuffer` object holding a buffer starting at current `position`
 
         note:
-            original `buffer` remain untouched.
+             this `ByteBuffer` remain untouched.
             `position` is not incremented.
         """
         b = ByteBuffer()
@@ -160,9 +160,9 @@ class ByteBuffer(object):
 
     def split(self):
         """
-        split this `buffer` at current position.
-        returning a `Buffer` object starting from current position until `buffer` length.
-        original `Buffer` is cutted at current position
+        split this `ByteBuffer` at current position.
+        returning a `ByteBuffer` object starting from current position until `buffer` length.
+        this `ByteBuffer` `buffer` object is cut at current position
         """
         b = self.slice()
         self.strip()
