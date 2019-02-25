@@ -100,6 +100,8 @@ class ByteBuffer(object):
         """
         if length != 0 and length > self.remaining:
             length = self.remaining
+        if length == 0:
+            length = self.remaining
         r = self.buffer[self.position:self.position + length]
         self._update_offsets(len(r))
         return r
@@ -112,27 +114,30 @@ class ByteBuffer(object):
         """
         return int.from_bytes(self._read(length=length), byteorder=endianness)
 
-    def put(self, b, endianness='big'):
+    def put(self, value, size=0, endianness='big'):
         """
-        write `b` in the buffer and increment `position`
+        write `value` in the buffer and increment `position`
         the data to write could be a string, an int, an array, a bytes/bytearray object, a list etc.
         optionally, you can specify an `endianness` if b is of type int.
         """
-        t = type(b)
+        t = type(value)
         if t == str:
-            b = b.encode('utf8')
+            b = value.encode('utf8')
         elif t == int:
-            b = int.to_bytes(b, utils.int_size(b), byteorder=endianness)
+            if size == 0:
+                size = utils.int_size(value)
+            b = int.to_bytes(value, size, byteorder=endianness)
         elif t == list:
-            b = bytes(b)
+            b = bytes(value)
         elif t == bytes or t == bytearray:
-            pass
+            b = t
         else:
             raise Exception('Attempting to write unknown object into Buffer')
         l = len(b)
         assert self._check_buffer(l), 'Buffer has not enough space left'
         for i in range(l):
-            self.buffer[l:l + 1] = b[i:i + 1]
+            self.buffer[self.position + i:self.position + i + 1] = b[i:i + 1]
+        self._update_offsets(l)
 
     def rewind(self):
         """
@@ -151,6 +156,25 @@ class ByteBuffer(object):
         """
         b = ByteBuffer()
         b.__init(self.buffer[self.position:])
+        return b
+
+    def split(self):
+        """
+        split this `buffer` at current position.
+        returning a `Buffer` object starting from current position until `buffer` length.
+        original `Buffer` is cutted at current position
+        """
+        b = self.slice()
+        self.strip()
+        return b
+
+    def strip(self):
+        """
+        strip `Buffer` at current position.
+        this remove all the bytes from current position until `buffer` length and set the new length to current position
+        """
+        self.buffer = self.buffer[:self.position]
+        self.remaining = 0
 
 
 __all__ = [
