@@ -186,7 +186,7 @@ __title__ = "PyByteBuffer"
 __summary__ = "A bytes manipulation library inspired by Java ByteBuffer"
 __uri__ = "https://github.com/iGio90/PyByteBuffer"
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 __author__ = "iGio90"
 __email__ = "giovanni.rocca.90@gmail.com"
