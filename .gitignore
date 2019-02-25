@@ -1,2 +1,8 @@
 .idea
 py-bytebuffer.iml
+build
+dist
+html
+PyByteBuffer
+PyByteBuffer.egg-info
+release

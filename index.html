@@ -139,6 +139,8 @@ class ByteBuffer(object):
         &#34;&#34;&#34;
         if length != 0 and length &gt; self.remaining:
             length = self.remaining
+        if length == 0:
+            length = self.remaining
         r = self.buffer[self.position:self.position + length]
         self._update_offsets(len(r))
         return r
@@ -151,27 +153,30 @@ class ByteBuffer(object):
         &#34;&#34;&#34;
         return int.from_bytes(self._read(length=length), byteorder=endianness)
 
-    def put(self, b, endianness=&#39;big&#39;):
+    def put(self, value, size=0, endianness=&#39;big&#39;):
         &#34;&#34;&#34;
-        write `b` in the buffer and increment `position`
+        write `value` in the buffer and increment `position`
         the data to write could be a string, an int, an array, a bytes/bytearray object, a list etc.
         optionally, you can specify an `endianness` if b is of type int.
         &#34;&#34;&#34;
-        t = type(b)
+        t = type(value)
         if t == str:
-            b = b.encode(&#39;utf8&#39;)
+            b = value.encode(&#39;utf8&#39;)
         elif t == int:
-            b = int.to_bytes(b, utils.int_size(b), byteorder=endianness)
+            if size == 0:
+                size = utils.int_size(value)
+            b = int.to_bytes(value, size, byteorder=endianness)
         elif t == list:
-            b = bytes(b)
+            b = bytes(value)
         elif t == bytes or t == bytearray:
-            pass
+            b = t
         else:
             raise Exception(&#39;Attempting to write unknown object into Buffer&#39;)
         l = len(b)
         assert self._check_buffer(l), &#39;Buffer has not enough space left&#39;
         for i in range(l):
-            self.buffer[l:l + 1] = b[i:i + 1]
+            self.buffer[self.position + i:self.position + i + 1] = b[i:i + 1]
+        self._update_offsets(l)
 
     def rewind(self):
         &#34;&#34;&#34;
@@ -190,6 +195,25 @@ class ByteBuffer(object):
         &#34;&#34;&#34;
         b = ByteBuffer()
         b.__init(self.buffer[self.position:])
+        return b
+
+    def split(self):
+        &#34;&#34;&#34;
+        split this `buffer` at current position.
+        returning a `Buffer` object starting from current position until `buffer` length.
+        original `Buffer` is cutted at current position
+        &#34;&#34;&#34;
+        b = self.slice()
+        self.strip()
+        return b
+
+    def strip(self):
+        &#34;&#34;&#34;
+        strip `Buffer` at current position.
+        this remove all the bytes from current position until `buffer` length and set the new length to current position
+        &#34;&#34;&#34;
+        self.buffer = self.buffer[:self.position]
+        self.remaining = 0
 
 
 __all__ = [
@@ -201,7 +225,7 @@ __title__ = &#34;PyByteBuffer&#34;
 __summary__ = &#34;A bytes manipulation library inspired by Java ByteBuffer&#34;
 __uri__ = &#34;https://github.com/iGio90/PyByteBuffer&#34;
 
-__version__ = &#34;1.0.2&#34;
+__version__ = &#34;1.0.4&#34;
 
 __author__ = &#34;iGio90&#34;
 __email__ = &#34;giovanni.rocca.90@gmail.com&#34;
@@ -312,6 +336,8 @@ __copyright__ = &#34;Copyright 2019 {0}&#34;.format(__author__)</code></pre>
         &#34;&#34;&#34;
         if length != 0 and length &gt; self.remaining:
             length = self.remaining
+        if length == 0:
+            length = self.remaining
         r = self.buffer[self.position:self.position + length]
         self._update_offsets(len(r))
         return r
@@ -324,27 +350,30 @@ __copyright__ = &#34;Copyright 2019 {0}&#34;.format(__author__)</code></pre>
         &#34;&#34;&#34;
         return int.from_bytes(self._read(length=length), byteorder=endianness)
 
-    def put(self, b, endianness=&#39;big&#39;):
+    def put(self, value, size=0, endianness=&#39;big&#39;):
         &#34;&#34;&#34;
-        write `b` in the buffer and increment `position`
+        write `value` in the buffer and increment `position`
         the data to write could be a string, an int, an array, a bytes/bytearray object, a list etc.
         optionally, you can specify an `endianness` if b is of type int.
         &#34;&#34;&#34;
-        t = type(b)
+        t = type(value)
         if t == str:
-            b = b.encode(&#39;utf8&#39;)
+            b = value.encode(&#39;utf8&#39;)
         elif t == int:
-            b = int.to_bytes(b, utils.int_size(b), byteorder=endianness)
+            if size == 0:
+                size = utils.int_size(value)
+            b = int.to_bytes(value, size, byteorder=endianness)
         elif t == list:
-            b = bytes(b)
+            b = bytes(value)
         elif t == bytes or t == bytearray:
-            pass
+            b = t
         else:
             raise Exception(&#39;Attempting to write unknown object into Buffer&#39;)
         l = len(b)
         assert self._check_buffer(l), &#39;Buffer has not enough space left&#39;
         for i in range(l):
-            self.buffer[l:l + 1] = b[i:i + 1]
+            self.buffer[self.position + i:self.position + i + 1] = b[i:i + 1]
+        self._update_offsets(l)
 
     def rewind(self):
         &#34;&#34;&#34;
@@ -362,7 +391,26 @@ __copyright__ = &#34;Copyright 2019 {0}&#34;.format(__author__)</code></pre>
             `position` is not incremented.
         &#34;&#34;&#34;
         b = ByteBuffer()
-        b.__init(self.buffer[self.position:])</code></pre>
+        b.__init(self.buffer[self.position:])
+        return b
+
+    def split(self):
+        &#34;&#34;&#34;
+        split this `buffer` at current position.
+        returning a `Buffer` object starting from current position until `buffer` length.
+        original `Buffer` is cutted at current position
+        &#34;&#34;&#34;
+        b = self.slice()
+        self.strip()
+        return b
+
+    def strip(self):
+        &#34;&#34;&#34;
+        strip `Buffer` at current position.
+        this remove all the bytes from current position until `buffer` length and set the new length to current position
+        &#34;&#34;&#34;
+        self.buffer = self.buffer[:self.position]
+        self.remaining = 0</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -466,6 +514,8 @@ See help(type(self)) for accurate signature.</p></section>
     &#34;&#34;&#34;
     if length != 0 and length &gt; self.remaining:
         length = self.remaining
+    if length == 0:
+        length = self.remaining
     r = self.buffer[self.position:self.position + length]
     self._update_offsets(len(r))
     return r</code></pre>
@@ -490,35 +540,38 @@ default <code>length</code> is 1 and big <code>endianness</code></p></section>
 </details>
 </dd>
 <dt id="PyByteBuffer.ByteBuffer.put"><code class="name flex">
-<span>def <span class="ident">put</span></span>(<span>self, b, endianness=&#39;big&#39;)</span>
+<span>def <span class="ident">put</span></span>(<span>self, value, size=0, endianness=&#39;big&#39;)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>write <code>b</code> in the buffer and increment <code>position</code>
+<section class="desc"><p>write <code>value</code> in the buffer and increment <code>position</code>
 the data to write could be a string, an int, an array, a bytes/bytearray object, a list etc.
 optionally, you can specify an <code>endianness</code> if b is of type int.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def put(self, b, endianness=&#39;big&#39;):
+<pre><code class="python">def put(self, value, size=0, endianness=&#39;big&#39;):
     &#34;&#34;&#34;
-    write `b` in the buffer and increment `position`
+    write `value` in the buffer and increment `position`
     the data to write could be a string, an int, an array, a bytes/bytearray object, a list etc.
     optionally, you can specify an `endianness` if b is of type int.
     &#34;&#34;&#34;
-    t = type(b)
+    t = type(value)
     if t == str:
-        b = b.encode(&#39;utf8&#39;)
+        b = value.encode(&#39;utf8&#39;)
     elif t == int:
-        b = int.to_bytes(b, utils.int_size(b), byteorder=endianness)
+        if size == 0:
+            size = utils.int_size(value)
+        b = int.to_bytes(value, size, byteorder=endianness)
     elif t == list:
-        b = bytes(b)
+        b = bytes(value)
     elif t == bytes or t == bytearray:
-        pass
+        b = t
     else:
         raise Exception(&#39;Attempting to write unknown object into Buffer&#39;)
     l = len(b)
     assert self._check_buffer(l), &#39;Buffer has not enough space left&#39;
     for i in range(l):
-        self.buffer[l:l + 1] = b[i:i + 1]</code></pre>
+        self.buffer[self.position + i:self.position + i + 1] = b[i:i + 1]
+    self._update_offsets(l)</code></pre>
 </details>
 </dd>
 <dt id="PyByteBuffer.ByteBuffer.rewind"><code class="name flex">
@@ -557,7 +610,45 @@ optionally, you can specify an <code>endianness</code> if b is of type int.</p><
         `position` is not incremented.
     &#34;&#34;&#34;
     b = ByteBuffer()
-    b.__init(self.buffer[self.position:])</code></pre>
+    b.__init(self.buffer[self.position:])
+    return b</code></pre>
+</details>
+</dd>
+<dt id="PyByteBuffer.ByteBuffer.split"><code class="name flex">
+<span>def <span class="ident">split</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>split this <code>buffer</code> at current position.
+returning a <code>Buffer</code> object starting from current position until <code>buffer</code> length.
+original <code>Buffer</code> is cutted at current position</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def split(self):
+    &#34;&#34;&#34;
+    split this `buffer` at current position.
+    returning a `Buffer` object starting from current position until `buffer` length.
+    original `Buffer` is cutted at current position
+    &#34;&#34;&#34;
+    b = self.slice()
+    self.strip()
+    return b</code></pre>
+</details>
+</dd>
+<dt id="PyByteBuffer.ByteBuffer.strip"><code class="name flex">
+<span>def <span class="ident">strip</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>strip <code>Buffer</code> at current position.
+this remove all the bytes from current position until <code>buffer</code> length and set the new length to current position</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def strip(self):
+    &#34;&#34;&#34;
+    strip `Buffer` at current position.
+    this remove all the bytes from current position until `buffer` length and set the new length to current position
+    &#34;&#34;&#34;
+    self.buffer = self.buffer[:self.position]
+    self.remaining = 0</code></pre>
 </details>
 </dd>
 </dl>
@@ -592,6 +683,8 @@ optionally, you can specify an <code>endianness</code> if b is of type int.</p><
 <li><code><a title="PyByteBuffer.ByteBuffer.remaining" href="#PyByteBuffer.ByteBuffer.remaining">remaining</a></code></li>
 <li><code><a title="PyByteBuffer.ByteBuffer.rewind" href="#PyByteBuffer.ByteBuffer.rewind">rewind</a></code></li>
 <li><code><a title="PyByteBuffer.ByteBuffer.slice" href="#PyByteBuffer.ByteBuffer.slice">slice</a></code></li>
+<li><code><a title="PyByteBuffer.ByteBuffer.split" href="#PyByteBuffer.ByteBuffer.split">split</a></code></li>
+<li><code><a title="PyByteBuffer.ByteBuffer.strip" href="#PyByteBuffer.ByteBuffer.strip">strip</a></code></li>
 <li><code><a title="PyByteBuffer.ByteBuffer.wrap" href="#PyByteBuffer.ByteBuffer.wrap">wrap</a></code></li>
 </ul>
 </li>
