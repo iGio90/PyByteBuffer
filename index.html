@@ -187,10 +187,10 @@ class ByteBuffer(object):
 
     def slice(self):
         &#34;&#34;&#34;
-        slice `buffer` at current position.
+        slice the `buffer` at current position. return a `ByteBuffer` object holding a buffer starting at current `position`
 
         note:
-            original `buffer` remain untouched.
+             this `ByteBuffer` remain untouched.
             `position` is not incremented.
         &#34;&#34;&#34;
         b = ByteBuffer()
@@ -199,9 +199,9 @@ class ByteBuffer(object):
 
     def split(self):
         &#34;&#34;&#34;
-        split this `buffer` at current position.
-        returning a `Buffer` object starting from current position until `buffer` length.
-        original `Buffer` is cutted at current position
+        split this `ByteBuffer` at current position.
+        returning a `ByteBuffer` object starting from current position until `buffer` length.
+        this `ByteBuffer` `buffer` object is cut at current position
         &#34;&#34;&#34;
         b = self.slice()
         self.strip()
@@ -384,10 +384,10 @@ __copyright__ = &#34;Copyright 2019 {0}&#34;.format(__author__)</code></pre>
 
     def slice(self):
         &#34;&#34;&#34;
-        slice `buffer` at current position.
+        slice the `buffer` at current position. return a `ByteBuffer` object holding a buffer starting at current `position`
 
         note:
-            original `buffer` remain untouched.
+             this `ByteBuffer` remain untouched.
             `position` is not incremented.
         &#34;&#34;&#34;
         b = ByteBuffer()
@@ -396,9 +396,9 @@ __copyright__ = &#34;Copyright 2019 {0}&#34;.format(__author__)</code></pre>
 
     def split(self):
         &#34;&#34;&#34;
-        split this `buffer` at current position.
-        returning a `Buffer` object starting from current position until `buffer` length.
-        original `Buffer` is cutted at current position
+        split this `ByteBuffer` at current position.
+        returning a `ByteBuffer` object starting from current position until `buffer` length.
+        this `ByteBuffer` `buffer` object is cut at current position
         &#34;&#34;&#34;
         b = self.slice()
         self.strip()
@@ -593,20 +593,20 @@ optionally, you can specify an <code>endianness</code> if b is of type int.</p><
 <span>def <span class="ident">slice</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>slice <code>buffer</code> at current position.</p>
+<section class="desc"><p>slice the <code>buffer</code> at current position. return a <a title="PyByteBuffer.ByteBuffer" href="#PyByteBuffer.ByteBuffer"><code>ByteBuffer</code></a> object holding a buffer starting at current <code>position</code></p>
 <dl>
 <dt><strong><code>note</code></strong></dt>
-<dd>original <code>buffer</code> remain untouched.
+<dd>this <a title="PyByteBuffer.ByteBuffer" href="#PyByteBuffer.ByteBuffer"><code>ByteBuffer</code></a> remain untouched.
 <code>position</code> is not incremented.</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def slice(self):
     &#34;&#34;&#34;
-    slice `buffer` at current position.
+    slice the `buffer` at current position. return a `ByteBuffer` object holding a buffer starting at current `position`
 
     note:
-        original `buffer` remain untouched.
+         this `ByteBuffer` remain untouched.
         `position` is not incremented.
     &#34;&#34;&#34;
     b = ByteBuffer()
@@ -618,16 +618,16 @@ optionally, you can specify an <code>endianness</code> if b is of type int.</p><
 <span>def <span class="ident">split</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>split this <code>buffer</code> at current position.
-returning a <code>Buffer</code> object starting from current position until <code>buffer</code> length.
-original <code>Buffer</code> is cutted at current position</p></section>
+<section class="desc"><p>split this <a title="PyByteBuffer.ByteBuffer" href="#PyByteBuffer.ByteBuffer"><code>ByteBuffer</code></a> at current position.
+returning a <a title="PyByteBuffer.ByteBuffer" href="#PyByteBuffer.ByteBuffer"><code>ByteBuffer</code></a> object starting from current position until <code>buffer</code> length.
+this <a title="PyByteBuffer.ByteBuffer" href="#PyByteBuffer.ByteBuffer"><code>ByteBuffer</code></a> <code>buffer</code> object is cut at current position</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def split(self):
     &#34;&#34;&#34;
-    split this `buffer` at current position.
-    returning a `Buffer` object starting from current position until `buffer` length.
-    original `Buffer` is cutted at current position
+    split this `ByteBuffer` at current position.
+    returning a `ByteBuffer` object starting from current position until `buffer` length.
+    this `ByteBuffer` `buffer` object is cut at current position
     &#34;&#34;&#34;
     b = self.slice()
     self.strip()
