@@ -130,7 +130,7 @@ class ByteBuffer(object):
         elif t == list:
             b = bytes(value)
         elif t == bytes or t == bytearray:
-            b = t
+            b = value
         else:
             raise Exception('Attempting to write unknown object into Buffer')
         l = len(b)
