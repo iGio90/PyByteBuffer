@@ -186,10 +186,10 @@ __title__ = "PyByteBuffer"
 __summary__ = "A bytes manipulation library inspired by Java ByteBuffer"
 __uri__ = "https://github.com/iGio90/PyByteBuffer"
 
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 __author__ = "iGio90"
 __email__ = "giovanni.rocca.90@gmail.com"
 
 __license__ = "GPL 3.0"
-__copyright__ = "Copyright 2019 {0}".format(__author__)
+__copyright__ = "Copyright 2020 {0}".format(__author__)
